@@ -1,2 +1,3 @@
 # taras
-Taras - liberated from the cloud!
+
+Green Tara: The Mother of Liberation
