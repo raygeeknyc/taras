@@ -5,7 +5,7 @@ Green Tara: The Mother of Liberation
 ![The Goddess](img/Green-Tara.jpg?raw=true "Tara")
 
 
-See github.com/raygeeknyc/ohgee for a favorite project of mine that was tied to Google Cloud - that worked well but proved untenable for two reasons:
+See [Ohgee](https://www.github.com/raygeeknyc/ohgee) for a favorite project of mine that was tied to Google Cloud - that worked well but proved untenable for two reasons:
 1) Cloud is expensive for an interactive project if you do not work for Google
 2) GCP security doesn't support "config and forget" devices of this nature and I regulary bave to update or change my authorization code to keep it online
 
