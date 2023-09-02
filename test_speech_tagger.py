@@ -76,6 +76,7 @@ try:
     else:
         dump_fn = None
 
+    print('rate {}'.format(str(args.samplerate)))
     with sd.RawInputStream(samplerate=args.samplerate, blocksize = 8000, device=args.device,
             dtype="int16", channels=1, callback=callback):
         print("#" * 80)
