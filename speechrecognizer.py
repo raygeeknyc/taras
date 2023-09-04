@@ -22,9 +22,19 @@ SAMPLE_RATE = 44100
 class SpeechRecognizer(multiprocessing.Process):
 
     def tag_speech(phrase:str) -> list:
-        text = nltk.word_tokenize(phrase.strip())
-        tagged_tokens = nltk.pos_tag(text)
+        tagged_tokens = nltk.pos_tag(nltk.word_tokenize(phrase.strip()))
         return tagged_tokens
+
+    def tag_names(tokens:list) -> list:
+        names = []
+        chunks = nltk.ne_chunk(tokens)
+        for chunk in chunks:
+            if type(chunk) == nltk.tree.Tree:
+                name = ''
+                for chunk_leaf in chunk.leaves():
+                    name += chunk_leaf[0] + ' ' 
+                names.append((chunk.label(),name))
+        return names
 
     def __init__(self, transcript, log_queue, logging_level):
         multiprocessing.Process.__init__(self)
@@ -99,7 +109,10 @@ class SpeechRecognizer(multiprocessing.Process):
             if self.model.AcceptWaveform(packet):
                 phrase = json.loads(self.model.Result())['text']
                 print(phrase)
-                print(SpeechRecognizer.tag_speech(phrase))
+                tagged_tokens = SpeechRecognizer.tag_speech(phrase)
+                print(tagged_tokens)
+                names = SpeechRecognizer.tag_names(tagged_tokens)
+                print(names)
             else:
                 snippet=json.loads(self.model.PartialResult())['partial']
                 print(str(snippet)+'...')
