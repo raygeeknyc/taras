@@ -20,9 +20,6 @@ from vosk import Model, KaldiRecognizer
 SAMPLE_RATE = 44100
 
 class SpeechRecognizer(multiprocessing.Process):
-    audio_packet_queue = queue.Queue()
-
-    model = KaldiRecognizer(Model(lang="en-us"), SAMPLE_RATE)
 
     def tag_speech(phrase:str) -> list:
         text = nltk.word_tokenize(phrase.strip())
@@ -30,7 +27,6 @@ class SpeechRecognizer(multiprocessing.Process):
         return tagged_tokens
 
     def __init__(self, transcript, log_queue, logging_level):
-
         multiprocessing.Process.__init__(self)
         self._log_queue = log_queue
         self._logging_level = logging_level
@@ -39,6 +35,8 @@ class SpeechRecognizer(multiprocessing.Process):
         self._transcript, _ = transcript
         self._stop_capturing = False
         self._stop_recognizing = False
+        self._audio_packet_queue = queue.Queue()
+        self.model = KaldiRecognizer(Model(lang="en-us"), SAMPLE_RATE)
         self.is_ready.clear()
 
     def stop(self):
@@ -84,7 +82,7 @@ class SpeechRecognizer(multiprocessing.Process):
         """This is called (from a separate thread) for each audio block."""
         if status:
             logging.warning('capture: %s' % status)
-        SpeechRecognizer.audio_packet_queue.put(bytes(indata))
+        self._audio_packet_queue.put(bytes(indata))
 
     def captureSound(self):
         logging.info("starting capturing")
@@ -97,13 +95,13 @@ class SpeechRecognizer(multiprocessing.Process):
 
     def recognizeSpeech(self):
         while not self._stop_recognizing:
-            packet = SpeechRecognizer.audio_packet_queue.get()
-            if SpeechRecognizer.model.AcceptWaveform(packet):
-                phrase = json.loads(SpeechRecognizer.model.Result())['text']
+            packet = self._audio_packet_queue.get()
+            if self.model.AcceptWaveform(packet):
+                phrase = json.loads(self.model.Result())['text']
                 print(phrase)
                 print(SpeechRecognizer.tag_speech(phrase))
             else:
-                snippet=json.loads(SpeechRecognizer.model.PartialResult())['partial']
+                snippet=json.loads(self.model.PartialResult())['partial']
                 print(str(snippet)+'...')
  
 
