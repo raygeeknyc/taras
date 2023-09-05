@@ -2,6 +2,7 @@
 
 import logging
 _LOGGING_LEVEL = logging.DEBUG
+POLLING_DELAY_SECS = 0.1
 
 import array
 from collections import deque
@@ -97,7 +98,7 @@ class SpeechRecognizer(multiprocessing.Process):
         self._audio_packet_queue.put(bytes(indata))
 
     def captureSound(self):
-        logging.info("starting capturing")
+        logging.info("starting capture thread")
         with self.sd.RawInputStream(samplerate=SAMPLE_RATE, blocksize = 8000, device=None,
             dtype="int16", channels=1, callback=self._audioPacketCallback):
 
@@ -106,7 +107,7 @@ class SpeechRecognizer(multiprocessing.Process):
         logging.info("stopped capturing")
 
     def recognizeSpeech(self):
-        logging.info("starting recognizing")
+        logging.info("starting recognizer thread")
         phrase = 'What does John Doe do in the morning'
         tagged_tokens = SpeechRecognizer.tag_speech(phrase)
         print(tagged_tokens)
@@ -145,11 +146,13 @@ def main(unused):
     logging.debug("Waiting for speech recognizer to be ready")
     recognition_worker.is_ready.wait()
     try:
-        logging.debug("Passing in main process")
+        logging.debug("Waiting in main process")
         while True:
-            pass
-    except Exception:
-        print('Exit exception')
+            time.sleep(POLLING_DELAY_SECS)
+    except KeyboardInterrupt:
+        print('Interrupted, exiting')
+    except Exception as e:
+        logging.exception("unexpected error running SpeechRecognizer, exiting")
     finally:
         recognition_worker.stop()
         recognition_worker.join()
