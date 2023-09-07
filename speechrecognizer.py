@@ -147,13 +147,15 @@ def main(unused):
     recognition_worker.is_ready.wait()
     try:
         logging.debug("Waiting in main process")
-        while True:
+        endtime = time.time() + 10  # 10 secs to wait
+        while time.time() < endtime:
             time.sleep(POLLING_DELAY_SECS)
     except KeyboardInterrupt:
         print('Interrupted, exiting')
     except Exception as e:
-        logging.exception("unexpected error running SpeechRecognizer, exiting")
+        logging.exception("unexpected error running SpeechRecognizer")
     finally:
+        logging.info("exiting SpeechRecognizer")
         recognition_worker.stop()
         recognition_worker.join()
 
