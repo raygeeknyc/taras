@@ -14,12 +14,21 @@ from nltk import ne_chunk, pos_tag, word_tokenize
 from nltk.tree import Tree
 import os
 import queue
+import signal
 import sys
 import time
 import threading
 from vosk import Model, KaldiRecognizer
 
 SAMPLE_RATE = 44100
+
+ready_event = None
+stop_event = None
+def interrupt_handler(sig, frame):
+    print('You pressed Ctrl+C!')
+    print(stop_event)
+    stop_event.set()
+    print(stop_event)
 
 class SpeechRecognizer(multiprocessing.Process):
 
@@ -39,23 +48,19 @@ class SpeechRecognizer(multiprocessing.Process):
                 names.append((chunk.label(),name))
         return names
 
-    def __init__(self, transcript, log_queue, logging_level):
+    def __init__(self, transcript, log_queue, logging_level, ready_event, stop_event):
         multiprocessing.Process.__init__(self)
         self._log_queue = log_queue
         self._logging_level = logging_level
-        self._exit = multiprocessing.Event()
-        self.is_ready = multiprocessing.Event()
-        self._exit.clear()
+        self.is_ready = ready_event
         self.is_ready.clear()
+        self._exit = stop_event
+        self._exit.clear()
         self._transcript, _ = transcript
         self._stop_capturing = False
         self._stop_recognizing = False
         self._audio_packet_queue = queue.Queue()
         self.model = KaldiRecognizer(Model(lang="en-us"), SAMPLE_RATE)
-
-    def stop(self):
-        logging.debug("***background received shutdown")
-        self._exit.set()
 
     def _initLogging(self):
         handler = ChildMultiProcessingLogHandler(self._log_queue)
@@ -71,6 +76,7 @@ class SpeechRecognizer(multiprocessing.Process):
         self._recognizer = threading.Thread(target=self.recognizeSpeech)
         self._recognizer.start()
         self._capturer.start()
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
         self.is_ready.set()
         logging.debug('speechrecognizer waiting for stop()')
         self._exit.wait()  # block until stop() is invoked
@@ -129,6 +135,11 @@ class SpeechRecognizer(multiprocessing.Process):
  
 
 def main(unused):
+    global _exit_handler, ready_event, stop_event
+
+    ready_event = multiprocessing.Event()
+    stop_event = multiprocessing.Event()
+
     log_stream = sys.stderr
     log_queue = multiprocessing.Queue(100)
     handler = ParentMultiProcessingLogHandler(logging.StreamHandler(log_stream), log_queue)
@@ -136,7 +147,7 @@ def main(unused):
     logging.getLogger('').setLevel(_LOGGING_LEVEL)
 
     transcript = multiprocessing.Pipe()
-    recognition_worker = SpeechRecognizer(transcript, log_queue, logging.getLogger('').getEffectiveLevel())
+    recognition_worker = SpeechRecognizer(transcript, log_queue, logging.getLogger('').getEffectiveLevel(), ready_event, stop_event)
     logging.debug("Starting speech recognition")
     recognition_worker.start()
     unused, _ = transcript
@@ -144,19 +155,15 @@ def main(unused):
 
     
     logging.debug("Waiting for speech recognizer to be ready")
-    recognition_worker.is_ready.wait()
+    ready_event.wait()
+    signal.signal(signal.SIGINT, interrupt_handler)
+    logging.debug("Waiting in main process")
     try:
-        logging.debug("Waiting in main process")
-        endtime = time.time() + 10  # 10 secs to wait
-        while time.time() < endtime:
-            time.sleep(POLLING_DELAY_SECS)
-    except KeyboardInterrupt:
-        print('Interrupted, exiting')
+        signal.pause()
     except Exception as e:
         logging.exception("unexpected error running SpeechRecognizer")
     finally:
-        logging.info("exiting SpeechRecognizer")
-        recognition_worker.stop()
+        logging.info("joining SpeechRecognizer to wait for exit")
         recognition_worker.join()
 
 if __name__ == '__main__':
