@@ -22,13 +22,10 @@ from vosk import Model, KaldiRecognizer
 
 SAMPLE_RATE = 44100
 
-ready_event = None
-stop_event = None
+_shutdown_requestor = None
 def interrupt_handler(sig, frame):
     print('You pressed Ctrl+C!')
-    print(stop_event)
-    stop_event.set()
-    print(stop_event)
+    _shutdown_requestor()
 
 class SpeechRecognizer(multiprocessing.Process):
 
@@ -48,13 +45,13 @@ class SpeechRecognizer(multiprocessing.Process):
                 names.append((chunk.label(),name))
         return names
 
-    def __init__(self, transcript, log_queue, logging_level, ready_event, stop_event):
+    def __init__(self, transcript, log_queue, logging_level):
         multiprocessing.Process.__init__(self)
         self._log_queue = log_queue
         self._logging_level = logging_level
-        self.is_ready = ready_event
+        self.is_ready = multiprocessing.Event()
         self.is_ready.clear()
-        self._exit = stop_event
+        self._exit = multiprocessing.Event()
         self._exit.clear()
         self._transcript, _ = transcript
         self._stop_capturing = False
@@ -66,6 +63,10 @@ class SpeechRecognizer(multiprocessing.Process):
         handler = ChildMultiProcessingLogHandler(self._log_queue)
         logging.getLogger(str(os.getpid())).addHandler(handler)
         logging.getLogger(str(os.getpid())).setLevel(self._logging_level)
+
+    def shutdown(self):
+        logging.info("background received shutdown")
+        self._exit.set()
 
     def run(self):
         self._initLogging()
@@ -135,10 +136,7 @@ class SpeechRecognizer(multiprocessing.Process):
  
 
 def main(unused):
-    global _exit_handler, ready_event, stop_event
-
-    ready_event = multiprocessing.Event()
-    stop_event = multiprocessing.Event()
+    global _shutdown_requestor
 
     log_stream = sys.stderr
     log_queue = multiprocessing.Queue(100)
@@ -147,15 +145,15 @@ def main(unused):
     logging.getLogger('').setLevel(_LOGGING_LEVEL)
 
     transcript = multiprocessing.Pipe()
-    recognition_worker = SpeechRecognizer(transcript, log_queue, logging.getLogger('').getEffectiveLevel(), ready_event, stop_event)
+    recognition_worker = SpeechRecognizer(transcript, log_queue, logging.getLogger('').getEffectiveLevel())
     logging.debug("Starting speech recognition")
     recognition_worker.start()
     unused, _ = transcript
     unused.close()
-
+    _shutdown_requestor = recognition_worker.shutdown
     
     logging.debug("Waiting for speech recognizer to be ready")
-    ready_event.wait()
+    recognition_worker.is_ready.wait()
     signal.signal(signal.SIGINT, interrupt_handler)
     logging.debug("Waiting in main process")
     try:
