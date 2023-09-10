@@ -33,17 +33,20 @@ class SpeechRecognizer(multiprocessing.Process):
         tagged_tokens = pos_tag(word_tokenize(phrase.strip()))
         return tagged_tokens
 
-    def tag_names(tokens:list) -> list:
-        names = []
+    def chunk_names(tokens:list) -> list:
+        chunked_tokens = []
         chunks = ne_chunk(tokens)
         for chunk in chunks:
-            print('{}: {}'.format(type(chunk),str(chunk)))
+            logging.debug('chunk: {}: {}'.format(type(chunk),str(chunk)))
             if type(chunk) == Tree:
                 name = ''
                 for chunk_leaf in chunk.leaves():
                     name += chunk_leaf[0] + ' ' 
-                names.append((chunk.label(),name))
-        return names
+                name = name.strip()
+                chunked_tokens.append((name,chunk.label()))
+            else:
+                chunked_tokens.append(chunk)
+        return chunked_tokens
 
     def __init__(self, transcript, log_queue, logging_level):
         multiprocessing.Process.__init__(self)
@@ -117,18 +120,15 @@ class SpeechRecognizer(multiprocessing.Process):
         logging.info("starting recognizer thread")
         phrase = 'What does John Doe do in the morning'
         tagged_tokens = SpeechRecognizer.tag_speech(phrase)
-        print(tagged_tokens)
-        names = SpeechRecognizer.tag_names(tagged_tokens)
-        print(names)
+        tagged_chunks = SpeechRecognizer.chunk_names(tagged_tokens)
+        print(tagged_chunks)
         while not self._stop_recognizing:
             packet = self._audio_packet_queue.get()
             if self.model.AcceptWaveform(packet):
                 phrase = json.loads(self.model.Result())['text']
-                print(phrase)
                 tagged_tokens = SpeechRecognizer.tag_speech(phrase)
-                print(tagged_tokens)
-                names = SpeechRecognizer.tag_names(tagged_tokens)
-                print(names)
+                chunks = SpeechRecognizer.chunk_names(tagged_tokens)
+                print(chunks)
             else:
                 snippet=json.loads(self.model.PartialResult())['partial']
                 print(str(snippet)+'...')
