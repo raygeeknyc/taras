@@ -20,6 +20,8 @@ import time
 import threading
 from vosk import Model, KaldiRecognizer
 
+PERSON_LABEL = 'PERSON'
+
 SAMPLE_RATE = 44100
 
 _shutdown_requestor = None
@@ -121,17 +123,19 @@ class SpeechRecognizer(multiprocessing.Process):
         phrase = 'What does John Doe do in the morning'
         tagged_tokens = SpeechRecognizer.tag_speech(phrase)
         tagged_chunks = SpeechRecognizer.chunk_names(tagged_tokens)
-        print(tagged_chunks)
+        logging.debug(tagged_chunks)
+        self._transcript.send(tagged_chunks)
         while not self._stop_recognizing:
             packet = self._audio_packet_queue.get()
             if self.model.AcceptWaveform(packet):
                 phrase = json.loads(self.model.Result())['text']
                 tagged_tokens = SpeechRecognizer.tag_speech(phrase)
-                chunks = SpeechRecognizer.chunk_names(tagged_tokens)
-                print(chunks)
+                tagged_chunks = SpeechRecognizer.chunk_names(tagged_tokens)
+                logging.debug(tagged_chunks)
+                self._transcript.send(tagged_chunks)
             else:
                 snippet=json.loads(self.model.PartialResult())['partial']
-                print(str(snippet)+'...')
+                logging.debug(str(snippet)+'...')
         logging.info("stopped recognizing")
  
 
@@ -148,7 +152,7 @@ def main(unused):
     recognition_worker = SpeechRecognizer(transcript, log_queue, logging.getLogger('').getEffectiveLevel())
     logging.debug("Starting speech recognition")
     recognition_worker.start()
-    unused, _ = transcript
+    unused, parsed_speech = transcript
     unused.close()
     _shutdown_requestor = recognition_worker.shutdown
     
@@ -157,7 +161,12 @@ def main(unused):
     signal.signal(signal.SIGINT, interrupt_handler)
     logging.debug("Waiting in main process")
     try:
-        signal.pause()
+        while True:
+            try:
+                speech = parsed_speech.recv()
+                print("heard: {}".format(speech))
+            except EOFError:
+                break
     except Exception as e:
         logging.exception("unexpected error running SpeechRecognizer")
     finally:
