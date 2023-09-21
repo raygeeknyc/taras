@@ -24,10 +24,12 @@ PERSON_LABEL = 'PERSON'
 
 SAMPLE_RATE = 44100
 
-_shutdown_requestor = None
+
 def interrupt_handler(sig, frame):
+    global shutdown_requestor
+
     print('You pressed Ctrl+C!')
-    _shutdown_requestor()
+    shutdown_requestor()
 
 class SpeechRecognizer(multiprocessing.Process):
 
@@ -140,7 +142,9 @@ class SpeechRecognizer(multiprocessing.Process):
  
 
 def main(unused):
-    global _shutdown_requestor
+    global shutdown_requestor
+
+    shutdown_requestor = None
 
     log_stream = sys.stderr
     log_queue = multiprocessing.Queue(100)
@@ -154,7 +158,7 @@ def main(unused):
     recognition_worker.start()
     unused, parsed_speech = transcript
     unused.close()
-    _shutdown_requestor = recognition_worker.shutdown
+    shutdown_requestor = recognition_worker.shutdown
     
     logging.debug("Waiting for speech recognizer to be ready")
     recognition_worker.is_ready.wait()

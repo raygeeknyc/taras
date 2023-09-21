@@ -4,12 +4,26 @@
 import logging
 _DEBUG=logging.INFO
 _DEBUG=logging.DEBUG
+_LOGGING_LEVEL=_DEBUG
+
 
 from datetime import datetime
+import multiprocessing
+from multiprocessingloghandler import ParentMultiProcessingLogHandler, ChildMultiProcessingLogHandler
 import os
 import re
 from random import randint
-from speechrecognizer import PERSON_LABEL
+import signal
+from speechrecognizer import PERSON_LABEL, SpeechRecognizer 
+import sys
+
+
+def interrupt_handler(sig, frame):
+    global shutdown_requestor
+
+    print('You pressed Ctrl+C!')
+    shutdown_requestor()
+
 
 REBOOT_PROMPTS = (["og", "please", "reboot"], ["oh", "please", "reboot"], ["o", "please", "reboot"])
 REBOOT_RESPONSES = (["rebooting"], ["I'm", "rebooting"],  ["Okay", "", "I'm", "on", "it"])
@@ -649,17 +663,17 @@ def randomPhraseFrom(phrases):
     return phrases[randint(0,len(phrases)-1)]
 
 
-def getPersonName(tagged_tokens):
+def getPersonsNames(tagged_tokens:list)->list:
     if not tagged_tokens:
         return [""]
-    person = ""
+    persons = []
     for tagged_token in tagged_tokens:
         if tagged_token[1]== speechrecognizer.PERSON_LABEL:
-            person = tagged_token[0]
-    return [person]
+            persons.append(tagged_token[0])
+    return persons
 
 
-def getResponse(phrase, persons):
+def getResponse(tagged_phrase_tokens:list, persons:list):
     logging.debug("Looking to match phrase '%s'" % phrase)
     for prompt_generator, response_generator, suffix_generator, wave_flag in PROMPTS_RESPONSES:
         matchedPhrase, wildcards = phraseMatch(phrase, entities, prompt_generator)
@@ -804,7 +818,7 @@ def departed(phrase):
 
 
 def main(unused):
-    global _shutdown_requestor
+    global shutdown_requestor
 
     log_stream = sys.stderr
     log_queue = multiprocessing.Queue(100)
@@ -818,7 +832,7 @@ def main(unused):
     recognition_worker.start()
     unused, _ = transcript
     unused.close()
-    _shutdown_requestor = recognition_worker.shutdown
+    shutdown_requestor = recognition_worker.shutdown
 
     logging.debug("Waiting for speech recognizer to be ready")
     recognition_worker.is_ready.wait()
@@ -838,3 +852,4 @@ def main(unused):
         recognition_worker.join()
 
 if __name__ == '__main__':
+    main(sys.argv)
