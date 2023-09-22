@@ -1,7 +1,7 @@
 # tara
 
 <div>
-  <table><tr style="border:none;"><td>Green Tara: The Mother of Liberation</td><td><img src=img/Green-Tara.jpg width="25%" alt="the goddess"></td></tr></table>
+  <table><tr><td style="border:none;">Green Tara: The Mother of Liberation</td><td><img src=img/Green-Tara.jpg width="25%" alt="the goddess"></td></tr></table>
 </div>
 
 
