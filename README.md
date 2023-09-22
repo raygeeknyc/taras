@@ -1,6 +1,6 @@
 # tara
 <div width=60%">
-<img src=img/Green-Tara.jpg alt="the goddess" align=right>
+<img src=img/Green-Tara.jpg alt="the goddess" align=right width="20%">
 <br/><br/><br/><br/>Green Tara: The Mother of Liberation<br/><br/><br/><br/><br/>
 </div>
 See [Ohgee](https://www.github.com/raygeeknyc/ohgee) for a favorite project of mine that was tied to Google Cloud - that worked well but proved untenable for two reasons:
