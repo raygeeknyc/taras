@@ -1,7 +1,6 @@
 # tara
 
-Green Tara: The Mother of Liberation
-![The Goddess](img/Green-Tara.jpg?raw=true "Tara")
+Green Tara: The Mother of Liberation ![The Goddess](img/Green-Tara.jpg?raw=true "Tara")
 
 
 See [Ohgee](https://www.github.com/raygeeknyc/ohgee) for a favorite project of mine that was tied to Google Cloud - that worked well but proved untenable for two reasons:
