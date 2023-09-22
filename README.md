@@ -1,6 +1,6 @@
 # tara
-<div>
-<img src=img/Green-Tara.jpg width="25%" alt="the goddess" align="center">
+<div width="60%">
+<img src=img/Green-Tara.jpg width="25%" alt="the goddess" align="right">
 <br/>Green Tara: The Mother of Liberation
 </div>
 <br/>
