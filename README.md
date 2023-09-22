@@ -1,7 +1,7 @@
 # tara
 
 Green Tara: The Mother of Liberation
-![The Goddess](img/Green-Tara.jpg?raw=true "Tara"){ width=200px }
+![The Goddess](img/Green-Tara.jpg?raw=true "Tara"){ width="200px" }
 
 See [Ohgee](https://www.github.com/raygeeknyc/ohgee) for a favorite project of mine that was tied to Google Cloud - that worked well but proved untenable for two reasons:
 1) Cloud is [too] expensive for an interactive project if you do not work for Google
