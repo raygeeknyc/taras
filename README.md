@@ -1,5 +1,5 @@
 # tara
-<div width=60%">
+<div width=25%">
 <img src=img/Green-Tara.jpg alt="the goddess" align=right width="20%">
 <br/><br/><br/><br/>Green Tara: The Mother of Liberation<br/><br/><br/><br/><br/>
 </div>
