@@ -3,6 +3,7 @@
 <img src=img/Green-Tara.jpg width="25%" alt="the goddess" align="right">
 <br/>Green Tara: The Mother of Liberation
 </div>
+<br/>
 See [Ohgee](https://www.github.com/raygeeknyc/ohgee) for a favorite project of mine that was tied to Google Cloud - that worked well but proved untenable for two reasons:
 1) Cloud is [too] expensive for an interactive project if you do not work for Google
 2) GCP security doesn't support "config and forget" devices of this nature and I regularly have to update or change my authorization logic to keep it online
