@@ -1,9 +1,4 @@
 # tara
-<style>
-table{
-border:0px:
-}
-</style>
 <div>
   <table><tr><td>Green Tara: The Mother of Liberation</td><td><img src=img/Green-Tara.jpg width="25%" alt="the goddess"></td></tr></table>
 </div>
