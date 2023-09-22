@@ -1,6 +1,6 @@
 # tara
 
-Green Tara: The Mother of Liberation <img src=img/Green-Tara.jpg width="150px">
+Green Tara: The Mother of Liberation <img src=img/Green-Tara.jpg width="20%">
 
 
 See [Ohgee](https://www.github.com/raygeeknyc/ohgee) for a favorite project of mine that was tied to Google Cloud - that worked well but proved untenable for two reasons:
