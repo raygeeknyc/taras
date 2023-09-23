@@ -194,7 +194,7 @@ def idResponses(entities):
 
 def introResponses(tagged_tokens):
     address = randomPhraseFrom(INTRO_RESPONSES)
-    return (address + getPersonName(tagged_tokens),)
+    return (address + getPersonsNames(tagged_tokens),)
 
 
 def timeResponses(_):
@@ -668,20 +668,20 @@ def getPersonsNames(tagged_tokens:list)->list:
         return [""]
     persons = []
     for tagged_token in tagged_tokens:
-        if tagged_token[1]== speechrecognizer.PERSON_LABEL:
+        if tagged_token[1]== PERSON_LABEL:
             persons.append(tagged_token[0])
     return persons
 
 
 def getResponse(tagged_phrase_tokens:list, persons:list):
-    logging.debug("Looking to match phrase '%s'" % phrase)
+    logging.debug("Looking to match phrase '%s'" % tagged_phrase_tokens)
     for prompt_generator, response_generator, suffix_generator, wave_flag in PROMPTS_RESPONSES:
-        matchedPhrase, wildcards = phraseMatch(phrase, entities, prompt_generator)
-        logging.debug("'%s', '%s', '%s'" % (phrase, matchedPhrase, wildcards))
+        matchedPhrase, wildcards = phraseMatch(tagged_phrase_tokens, persons, prompt_generator)
+        logging.debug("'%s', '%s', '%s'" % (tagged_phrase_tokens, matchedPhrase, wildcards))
         if matchedPhrase:
-            responses = eval('response_generator(entities)')
+            responses = eval('response_generator(persons)')
             if suffix_generator:
-                suffixes = eval('suffix_generator(entities)')
+                suffixes = eval('suffix_generator(persons)')
             else:
                 suffixes = None
             logging.debug("responses '%s', '%s'" % (responses, suffixes))
@@ -784,7 +784,7 @@ def phraseMatch(phrase, entities, candidate_phrase_generator):
 def phraseInKnownCandidatePhrase(phrase_being_matched, candidate_phrase):
     if not phrase_being_matched or not candidate_phrase:
         return ([], None)
-    phrase_words = phrase_being_matched.strip().split(' ')
+    phrase_words = [token[0].strip() for token in phrase_being_matched]
     logging.debug("phrase '%s' - candidate '%s': %d", str(phrase_words), str(candidate_phrase), (len(phrase_words) - len(candidate_phrase) + 1))
     for phrase_position in range(len(phrase_words) - len(candidate_phrase) + 1):
         wildcards = {}
@@ -830,7 +830,7 @@ def main(unused):
     recognition_worker = SpeechRecognizer(transcript, log_queue, logging.getLogger('').getEffectiveLevel())
     logging.debug("Starting speech recognition")
     recognition_worker.start()
-    unused, _ = transcript
+    unused, spoken_text_tokens = transcript
     unused.close()
     shutdown_requestor = recognition_worker.shutdown
 
@@ -838,13 +838,18 @@ def main(unused):
     recognition_worker.is_ready.wait()
     signal.signal(signal.SIGINT, interrupt_handler)
     try:
-        print(getGreeting())
         while True:
-            phrase = input("Enter a phrase to match: ")
-            if not phrase:
+            try:
+                speech = spoken_text_tokens.recv()
+                print("Heard: {}".format(speech))
+                persons = getPersonsNames(speech)
+                response = getResponse(speech, persons)
+                print("Response: {}".format(response))
+            except EOFError:
                 break
+    except Exception as e:
+        logging.exception("unexpected error running SpeechRecognizer")
 
-            print(getResponse(phrase))
     except Exception as e:
         logging.exception("unexpected error running PhraseResponder")
     finally:
