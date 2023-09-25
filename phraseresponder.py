@@ -152,6 +152,9 @@ GIRLS_COUNT_RESPONSES = (["fourteen", "thousand", "two hundred", "and", "ninety 
 BANAL_2_PROMPTS = (["how's", "the", "weather"], ["hows", "the", "weather"], ["what's", "the", "weather"], ["whats", "the", "weather"], ["how", "is", "the", "weather"], ["what", "is", "the", "weather"])
 BANAL_2_RESPONSES = (["chili", "today", "hot", "ta-ma-lay"], ["chili", "today", "but", "hot", "ta-ma-lay"])
 
+GENERIC_QUESTION_PROMPTS = (['what', '?question?'], ['how', '?question?'], ['why', '?question?'], ['where', '?question?'])
+GENERIC_QUESTION_RESPONSES = (['I', 'dont', 'know', '?question?'], ['Do', 'you', 'think', '?question?', 'is', 'important', 'to', 'know?'])
+
 GREETINGS = ( ["happy", "national", "robot", "week"], ["oh", "la"], ["always", "a", "pleasure"], ["Its", "good", "to", "see", "you"], ["hello"], ["hi"], ["hey", "there"], ["nice", "to", "see", "you"], ["good", "to", "see", "you"], ["welcome"], ["good", "day"], ["good", "day", "to", "you"], ["oh", "hello"], ["yay", "it's", "you"], ["I", "love", "being", "a", "robot"], ["I", "hope", "that", "you", "like", "robots"], ["hello", "human", "friend"], ["What", "a", "nice", "human!"], ["Danger", "Will", "Robinson!"], ["I", "love", "humans"], ["being", "a", "robot", "is", "the", "best"])
 ALL_DAY_GREETINGS = (["good", "morning"], ["good", "afternoon"], ["good", "evening"], ["good", "night"])
 FAREWELLS = (["goodbye"], ["bye"], ["farewell"], ["see","you"], ["talk", "to", "you", "later"], ["take", "care"], ["bye", "bye"], ["see", "you", "later"], ["later"], ["call", "me"], ["did", "you", "just", "sign", "out?"], ["come", "back","soon"], ["I'll", "be", "here"])
@@ -430,6 +433,10 @@ def banal2Prompts(_):
     return BANAL_2_PROMPTS
 
 
+def genericQuestionPrompts(_):
+    return GENERIC_QUESTION_PROMPTS
+
+
 def rebootResponses(_):
     return REBOOT_RESPONSES
 
@@ -594,6 +601,10 @@ def banal2Responses(_):
     return BANAL_2_RESPONSES
 
 
+def genericQuestionResponses(_):
+    return GENERIC_QUESTION_RESPONSES
+
+
 def timePrompts(_):
     return TIME_PROMPTS
 
@@ -748,6 +759,7 @@ PROMPTS_RESPONSES = [
   (greetings, greetings, inKindSuffixes, True), 
   (banal1Prompts, banal1Responses, None, False),
   (banal2Prompts, banal2Responses, None, False),
+  (genericQuestionPrompts, genericQuestionResponses, None, False),
   (otherProducts, productRecs, None, False)]
 
 
@@ -771,13 +783,12 @@ def substituteWildcards(chosenResponse, wildcards):
 
 def phraseMatch(phrase, entities, candidate_phrase_generator):
     candidate_phrases = eval('candidate_phrase_generator(entities)')
-    logging.debug("Candidate phrases: {}".format(candidate_phrases))
+    logging.debug("Phrases: {}".format(candidate_phrases))
     for candidate_phrase in candidate_phrases:
-        logging.debug("Matching with {}".format(candidate_phrase))
+        logging.debug("Matching with candidate: {}".format(candidate_phrase))
         matched_phrase, wildcard_values = phraseInKnownCandidatePhrase(phrase, candidate_phrase)
         if matched_phrase:
-            logging.debug("'%s' matched '%s, %s'" % (phrase, str(matched_phrase), str(wildcard_values)))
-            return (matched_phrase, wildcard_values)
+            logging.debug("Matched '%s' and ('%s', '%s')" % (phrase, str(matched_phrase), str(wildcard_values)))
     return ([], None)
 
 
