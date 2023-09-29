@@ -152,8 +152,8 @@ GIRLS_COUNT_RESPONSES = (["fourteen", "thousand", "two hundred", "and", "ninety 
 BANAL_2_PROMPTS = (["how's", "the", "weather"], ["hows", "the", "weather"], ["what's", "the", "weather"], ["whats", "the", "weather"], ["how", "is", "the", "weather"], ["what", "is", "the", "weather"])
 BANAL_2_RESPONSES = (["chili", "today", "hot", "ta-ma-lay"], ["chili", "today", "but", "hot", "ta-ma-lay"])
 
-GENERIC_QUESTION_PROMPTS = (['what', '?question?'], ['how', '?question?'], ['why', '?question?'], ['where', '?question?'])
-GENERIC_QUESTION_RESPONSES = (['I', 'dont', 'know', '?question?'], ['Do', 'you', 'think', '?question?', 'is', 'important', 'to', 'know?'])
+GENERIC_QUESTION_PROMPTS = (['what', 'does', '?question*?'], ['what', 'is', '?question*?'], ['what', '?question*?'], ['how', 'does', '?question*?'], ['how', 'is', '?question*?'], ['how', '?question*?'], ['why', 'does', '?question*?'], ['why', 'is', '?question*?'],  ['why', '?question*?'], ['where', 'does', '?question*?'], ['where', 'is', '?question*?'], ['where', '?question*?'])
+GENERIC_QUESTION_RESPONSES = (['I', 'dont', 'know', '?question*?'], ['Do', 'you', 'think', '?question*?', 'is', 'important', 'to', 'know?'])
 
 GREETINGS = ( ["happy", "national", "robot", "week"], ["oh", "la"], ["always", "a", "pleasure"], ["Its", "good", "to", "see", "you"], ["hello"], ["hi"], ["hey", "there"], ["nice", "to", "see", "you"], ["good", "to", "see", "you"], ["welcome"], ["good", "day"], ["good", "day", "to", "you"], ["oh", "hello"], ["yay", "it's", "you"], ["I", "love", "being", "a", "robot"], ["I", "hope", "that", "you", "like", "robots"], ["hello", "human", "friend"], ["What", "a", "nice", "human!"], ["Danger", "Will", "Robinson!"], ["I", "love", "humans"], ["being", "a", "robot", "is", "the", "best"])
 ALL_DAY_GREETINGS = (["good", "morning"], ["good", "afternoon"], ["good", "evening"], ["good", "night"])
@@ -770,9 +770,10 @@ def substituteWildcards(chosenResponse, wildcards):
     for token in chosenResponse:
         if re.match('\?.*\?',token):
             try:
-                logging.info("token: '%s', wildcards: '%s'", token, str(wildcards))
-                substituted_token = wildcards[token]
-                finalResponse.append(substituted_token)
+                logging.info("token: '%s', wildcards: '%s'", token, " ".join(wildcards))
+                substituted_wildcard = wildcards[token]
+                for substitute_token in substituted_wildcard:
+                    finalResponse.append(substitute_token)
             except KeyError:
                 logging.debug("token: '%s'", token)
                 finalResponse.append(token.replace("?",""))
@@ -803,8 +804,15 @@ def phraseInKnownCandidatePhrase(phrase_being_matched, candidate_phrase):
         can_match = True
         for candidate_position in range(len(candidate_phrase)):
             if re.match('\?.*\?', candidate_phrase[candidate_position]):
-                wildcards[candidate_phrase[candidate_position]] = phrase_words[phrase_start_position + candidate_position]
-                logging.debug("wildcard in phrase: [%s]<-'%s'", candidate_phrase[candidate_position], phrase_words[phrase_start_position + candidate_position])
+                if re.match('\?.*\*\?', candidate_phrase[candidate_position]):
+                    if candidate_position != len(candidate_phrase)-1:
+                        logging.error("Bad format. Greedy wildcard not at end of candidate: '{}'".format(candidate_phrase[candidate_position]))
+                        return ([], None)
+                    logging.debug("greedy wildcard in phrase: [%s]<-'%s'", candidate_phrase[candidate_position], phrase_words[phrase_start_position + candidate_position::])
+                    wildcards[candidate_phrase[candidate_position]] = phrase_words[phrase_start_position + candidate_position::]
+                else:
+                    logging.debug("wildcard in phrase: [%s]<-'%s'", candidate_phrase[candidate_position], phrase_words[phrase_start_position + candidate_position])
+                    wildcards[candidate_phrase[candidate_position]] = [phrase_words[phrase_start_position + candidate_position]]
             elif candidate_phrase[candidate_position].upper() != phrase_words[phrase_start_position + candidate_position].upper():
                 can_match = False
                 break
