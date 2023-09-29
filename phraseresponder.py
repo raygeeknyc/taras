@@ -789,6 +789,7 @@ def phraseMatch(phrase, entities, candidate_phrase_generator):
         matched_phrase, wildcard_values = phraseInKnownCandidatePhrase(phrase, candidate_phrase)
         if matched_phrase:
             logging.debug("Matched '%s' and ('%s', '%s')" % (phrase, str(matched_phrase), str(wildcard_values)))
+            return (matched_phrase, wildcard_values)
     return ([], None)
 
 
@@ -796,15 +797,15 @@ def phraseInKnownCandidatePhrase(phrase_being_matched, candidate_phrase):
     if not phrase_being_matched or not candidate_phrase:
         return ([], None)
     phrase_words = [token[0].strip() for token in phrase_being_matched]
-    logging.debug("phrase '%s' - candidate '%s': %d", str(phrase_words), str(candidate_phrase), (len(phrase_words) - len(candidate_phrase) + 1))
-    for phrase_position in range(len(phrase_words) - len(candidate_phrase) + 1):
+    logging.debug("phrase '%s'| candidate '%s' | supplemental words: %d", str(phrase_words), str(candidate_phrase), (len(phrase_words) - len(candidate_phrase)))
+    for phrase_start_position in range(len(phrase_words) - len(candidate_phrase) + 1):
         wildcards = {}
         can_match = True
         for candidate_position in range(len(candidate_phrase)):
             if re.match('\?.*\?', candidate_phrase[candidate_position]):
-                wildcards[candidate_phrase[candidate_position]] = phrase_words[phrase_position + candidate_position]
-                logging.debug("[%s]='%s'", candidate_phrase[candidate_position], phrase_words[phrase_position + candidate_position])
-            elif candidate_phrase[candidate_position].upper() != phrase_words[phrase_position + candidate_position].upper():
+                wildcards[candidate_phrase[candidate_position]] = phrase_words[phrase_start_position + candidate_position]
+                logging.debug("wildcard in phrase: [%s]<-'%s'", candidate_phrase[candidate_position], phrase_words[phrase_start_position + candidate_position])
+            elif candidate_phrase[candidate_position].upper() != phrase_words[phrase_start_position + candidate_position].upper():
                 can_match = False
                 break
         if can_match:
