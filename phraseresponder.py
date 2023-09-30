@@ -191,7 +191,7 @@ MONTH = ["January", "February", "March", "April", "May", "June", "July", "August
 DOW = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 
-def idResponses(entities):
+def idResponses(_):
     return ID_RESPONSES
 
 
@@ -229,212 +229,220 @@ def timeFarewells(_):
     return timeGreetings(None)
 
 
-def fixedGreetings(_):
-    return ALL_DAY_GREETINGS
+def fixedGreetingPrompts(phrase, _):
+    return phrase, ALL_DAY_GREETINGS
 
 
-def greetings(_):
+def greetingPrompts(phrase, _):
+    return phrase, GREETINGS+timeGreetings(None)
+
+
+def greetingResponses(_):
     return GREETINGS+timeGreetings(None)
 
 
-def farewells(_):
+def farewellPrompts(phrase, _):
+    return phrase, FAREWELLS+timeFarewells(None)
+
+
+def farewellResponses(_):
     return FAREWELLS+timeFarewells(None)
 
 
-def affections(_):
-    return AFFECTIONS
+def affectionPrompts(phrase, _):
+    return phrase, AFFECTIONS
 
 
-def thanks(_):
-    return THANKS
+def thanksPrompts(phrase, _):
+    return phrase, THANKS
 
 
-def welcomes(_):
+def welcomeResponses(_):
     return WELCOMES
 
 
-def hates(_):
-    return HATES
+def hatePrompts(phrase, _):
+    return phrase, HATES
 
 
-def sadnesses(_):
+def hateResponses(_):
     return SADNESSES
 
 
-def rebootPrompts(_):
-    return REBOOT_PROMPTS
+def rebootPrompts(phrase, _):
+    return phrase, REBOOT_PROMPTS
 
 
-def eliza1Prompts(_):
-    return ELIZA_1_PROMPTS
+def eliza1Prompts(phrase, _):
+    return phrase, ELIZA_1_PROMPTS
 
 
-def eliza2Prompts(_):
-    return ELIZA_2_PROMPTS
+def eliza2Prompts(phrase, _):
+    return phrase, ELIZA_2_PROMPTS
 
 
-def eliza3Prompts(_):
-    return ELIZA_3_PROMPTS
+def eliza3Prompts(phrase, _):
+    return phrase, ELIZA_3_PROMPTS
 
 
-def eliza4Prompts(_):
-    return ELIZA_4_PROMPTS
+def eliza4Prompts(phrase, _):
+    return phrase, ELIZA_4_PROMPTS
 
 
-def eliza5Prompts(_):
-    return ELIZA_5_PROMPTS
+def eliza5Prompts(phrase, _):
+    return phrase, ELIZA_5_PROMPTS
 
 
-def eliza6Prompts(_):
-    return ELIZA_6_PROMPTS
+def eliza6Prompts(phrase, _):
+    return phrase, ELIZA_6_PROMPTS
 
 
-def eliza7Prompts(_):
-    return ELIZA_7_PROMPTS
+def eliza7Prompts(phrase, _):
+    return phrase, ELIZA_7_PROMPTS
 
 
-def eliza8Prompts(_):
-    return ELIZA_8_PROMPTS
+def eliza8Prompts(phrase, _):
+    return phrase, ELIZA_8_PROMPTS
 
 
-def eliza9Prompts(_):
-    return ELIZA_9_PROMPTS
+def eliza9Prompts(phrase, _):
+    return phrase, ELIZA_9_PROMPTS
 
 
-def eliza10Prompts(_):
-    return ELIZA_10_PROMPTS
+def eliza10Prompts(phrase, _):
+    return phrase, ELIZA_10_PROMPTS
 
 
-def eliza11Prompts(_):
-    return ELIZA_11_PROMPTS
+def eliza11Prompts(phrase, _):
+    return phrase, ELIZA_11_PROMPTS
 
 
-def eliza12Prompts(_):
-    return ELIZA_12_PROMPTS
+def eliza12Prompts(phrase, _):
+    return phrase, ELIZA_12_PROMPTS
 
 
-def eliza13Prompts(_):
-    return ELIZA_13_PROMPTS
+def eliza13Prompts(phrase, _):
+    return phrase, ELIZA_13_PROMPTS
 
 
-def eliza14Prompts(_):
-    return ELIZA_14_PROMPTS
+def eliza14Prompts(phrase, _):
+    return phrase, ELIZA_14_PROMPTS
 
 
-def eliza15Prompts(_):
-    return ELIZA_15_PROMPTS
+def eliza15Prompts(phrase, _):
+    return phrase, ELIZA_15_PROMPTS
 
 
-def eliza16Prompts(_):
-    return ELIZA_16_PROMPTS
+def eliza16Prompts(phrase, _):
+    return phrase, ELIZA_16_PROMPTS
 
 
-def eliza17Prompts(_):
-    return ELIZA_17_PROMPTS
+def eliza17Prompts(phrase, _):
+    return phrase, ELIZA_17_PROMPTS
 
 
-def eliza18Prompts(_):
-    return ELIZA_18_PROMPTS
+def eliza18Prompts(phrase, _):
+    return phrase, ELIZA_18_PROMPTS
 
 
-def eliza19Prompts(_):
-    return ELIZA_19_PROMPTS
+def eliza19Prompts(phrase, _):
+    return phrase, ELIZA_19_PROMPTS
 
 
-def eliza20Prompts(_):
-    return ELIZA_20_PROMPTS
+def eliza20Prompts(phrase, _):
+    return phrase, ELIZA_20_PROMPTS
 
 
-def eliza21Prompts(_):
-    return ELIZA_21_PROMPTS
+def eliza21Prompts(phrase, _):
+    return phrase, ELIZA_21_PROMPTS
 
 
-def eliza22Prompts(_):
-    return ELIZA_22_PROMPTS
+def eliza22Prompts(phrase, _):
+    return phrase, ELIZA_22_PROMPTS
 
 
-def pop1Prompts(_):
-    return POP_1_PROMPTS
+def pop1Prompts(phrase, _):
+    return phrase, POP_1_PROMPTS
 
 
-def pop2Prompts(_):
-    return POP_2_PROMPTS
+def pop2Prompts(phrase, _):
+    return phrase, POP_2_PROMPTS
 
 
-def pop3Prompts(_):
-    return POP_3_PROMPTS
+def pop3Prompts(phrase, _):
+    return phrase, POP_3_PROMPTS
 
 
-def pop4Prompts(_):
-    return POP_4_PROMPTS
+def pop4Prompts(phrase, _):
+    return phrase, POP_4_PROMPTS
 
 
-def news1Prompts(_):
-    return NEWS_1_PROMPTS
+def news1Prompts(phrase, _):
+    return phrase, NEWS_1_PROMPTS
 
 
-def foodPrompts(_):
-    return FOOD_PROMPTS
+def foodPrompts(phrase, _):
+    return phrase, FOOD_PROMPTS
 
 
-def greatStuffPrompts(_):
-    return GREAT_STUFF_PROMPTS
+def greatStuffPrompts(phrase, _):
+    return phrase, GREAT_STUFF_PROMPTS
 
 
-def friends1Prompts(_):
-    return FRIENDS_1_PROMPTS
+def friends1Prompts(phrase, _):
+    return phrase, FRIENDS_1_PROMPTS
 
 
-def friends2Prompts(_):
-    return FRIENDS_2_PROMPTS
+def friends2Prompts(phrase, _):
+    return phrase, FRIENDS_2_PROMPTS
 
 
-def friends3Prompts(_):
-    return FRIENDS_3_PROMPTS
+def friends3Prompts(phrase, _):
+    return phrase, FRIENDS_3_PROMPTS
 
 
-def friends4Prompts(_):
-    return FRIENDS_4_PROMPTS
+def friends4Prompts(phrase, _):
+    return phrase, FRIENDS_4_PROMPTS
 
 
-def friends5Prompts(_):
-    return FRIENDS_5_PROMPTS
+def friends5Prompts(phrase, _):
+    return phrase, FRIENDS_5_PROMPTS
 
 
-def caninePrompts(_):
-    return CANINE_PROMPTS
+def caninePrompts(phrase, _):
+    return phrase, CANINE_PROMPTS
 
 
-def felinePrompts(_):
-    return FELINE_PROMPTS
+def felinePrompts(phrase, _):
+    return phrase, FELINE_PROMPTS
 
 
-def smugPrompts(_):
-    return SMUGS
+def smugPrompts(phrase, _):
+    return phrase, SMUGS
 
 
-def banal1Prompts(_):
-    return BANAL_1_PROMPTS
+def banal1Prompts(phrase, _):
+    return phrase, BANAL_1_PROMPTS
 
 
-def idPrompts(_):
-    return ID_PROMPTS
+def idPrompts(phrase, _):
+    return phrase, ID_PROMPTS
 
 
-def introPrompts(_):
-    return INTRO_PROMPTS
+def introPrompts(phrase, _):
+    return phrase, INTRO_PROMPTS
 
 
-def girlsCountPrompts(_):
-    return GIRLS_COUNT_PROMPTS
+def girlsCountPrompts(phrase, _):
+    return phrase, GIRLS_COUNT_PROMPTS
 
 
-def banal2Prompts(_):
-    return BANAL_2_PROMPTS
+def banal2Prompts(phrase, _):
+    return phrase, BANAL_2_PROMPTS
 
 
-def genericQuestionPrompts(_):
-    return GENERIC_QUESTION_PROMPTS
+def genericQuestionPrompts(phrase, _):
+    return phrase, GENERIC_QUESTION_PROMPTS
 
 
 def rebootResponses(_):
@@ -605,24 +613,24 @@ def genericQuestionResponses(_):
     return GENERIC_QUESTION_RESPONSES
 
 
-def timePrompts(_):
-    return TIME_PROMPTS
+def timePrompts(phrase, _):
+    return phrase, TIME_PROMPTS
 
 
-def datePrompts(_):
-    return DATE_PROMPTS
+def datePrompts(phrase, _):
+    return phrase, DATE_PROMPTS
 
 
-def humorPrompts(_):
-    return HUMOR_PROMPTS
+def humorPrompts(phrase, _):
+    return phrase, HUMOR_PROMPTS
 
 
-def aiPrompts(_):
-    return AI_PROMPTS
+def aiPrompts(phrase, _):
+    return phrase, AI_PROMPTS
 
 
-def jokePrompts(_):
-    return JOKE_PROMPTS
+def jokePrompts(phrase, _):
+    return phrase, JOKE_PROMPTS
 
 
 def humorResponses(_):
@@ -637,27 +645,27 @@ def jokeResponses(_):
     return JOKE_RESPONSES
 
 
-def joke2Prompts(_):
-    return JOKE_2_PROMPTS
+def joke2Prompts(phrase, _):
+    return phrase, JOKE_2_PROMPTS
 
 
 def joke2Responses(_):
     return JOKE_2_RESPONSES
 
 
-def pings(_):
-    return PINGS
+def pingPrompts(phrase, _):
+    return phrase, PINGS
 
 
-def acks(_):
+def pingResponses(_):
     return ACKS
 
 
-def otherProducts(_):
-    return OTHER_PRODUCTS
+def otherProductPrompts(phrase, _):
+    return phrase, OTHER_PRODUCTS
 
 
-def productRecs(_):
+def productResponses(_):
     return PRODUCT_RECS
 
 
@@ -687,8 +695,8 @@ def getPersonsNames(tagged_tokens:list)->list:
 def getResponse(tagged_phrase_tokens:list, persons:list):
     logging.debug("Looking to match phrase '%s'" % tagged_phrase_tokens)
     for prompt_generator, response_generator, suffix_generator, wave_flag in PROMPTS_RESPONSES:
-        matchedPhrase, wildcards = phraseMatch(tagged_phrase_tokens, persons, prompt_generator)
-        logging.debug("'%s', '%s', '%s'" % (tagged_phrase_tokens, matchedPhrase, wildcards))
+        generated_phrase, matchedPhrase, wildcards = phraseMatch(tagged_phrase_tokens, persons, prompt_generator)
+        logging.debug("'%s', '%s', '%s'" % (generated_phrase, matchedPhrase, wildcards))
         if matchedPhrase:
             responses = eval('response_generator(persons)')
             if suffix_generator:
@@ -716,16 +724,16 @@ PROMPTS_RESPONSES = [
   (pop2Prompts, pop2Responses, None, True),
   (pop3Prompts, pop3Responses, None, True),
   (pop4Prompts, pop4Responses, None, False),
-  (fixedGreetings, greetings, inKindSuffixes, True),
-  (farewells, farewells, inKindSuffixes, True),
-  (affections, affectionResponses, inKindSuffixes, False),
-  (thanks, welcomes, None, True),
-  (pings, acks, None, False),
+  (fixedGreetingPrompts, greetingResponses, inKindSuffixes, True),
+  (farewellPrompts, farewellResponses, inKindSuffixes, True),
+  (affectionPrompts, affectionResponses, inKindSuffixes, False),
+  (thanksPrompts, welcomeResponses, None, True),
+  (pingPrompts, pingResponses, None, False),
   (humorPrompts, humorResponses, None, False),
   (aiPrompts, aiResponses, None, True),
   (jokePrompts, jokeResponses, None, True),
   (joke2Prompts, joke2Responses, None, True),
-  (hates, sadnesses, None, False),
+  (hatePrompts, hateResponses, None, False),
   (timePrompts, timeResponses, None, False),
   (datePrompts, dateResponses, None, False),
   (news1Prompts, news1Responses, None, False),
@@ -756,11 +764,11 @@ PROMPTS_RESPONSES = [
   (eliza22Prompts, eliza22Responses, None, False),
   (idPrompts, idResponses, None, False),
   (introPrompts, introResponses, None, False), # This should follow specific intros
-  (greetings, greetings, inKindSuffixes, True), 
+  (greetingPrompts, greetingResponses, inKindSuffixes, True), 
   (banal1Prompts, banal1Responses, None, False),
   (banal2Prompts, banal2Responses, None, False),
   (genericQuestionPrompts, genericQuestionResponses, None, False),
-  (otherProducts, productRecs, None, False)]
+  (otherProductPrompts, productResponses, None, False)]
 
 
 def substituteWildcards(chosenResponse, wildcards):
@@ -782,16 +790,16 @@ def substituteWildcards(chosenResponse, wildcards):
     return finalResponse
 
 
-def phraseMatch(phrase, entities, candidate_phrase_generator):
-    candidate_phrases = eval('candidate_phrase_generator(entities)')
+def phraseMatch(raw_phrase, entities, candidate_phrase_generator):
+    phrase, candidate_phrases = eval('candidate_phrase_generator(raw_phrase, entities)')
     logging.debug("Phrases: {}".format(candidate_phrases))
     for candidate_phrase in candidate_phrases:
         logging.debug("Matching with candidate: {}".format(candidate_phrase))
         matched_phrase, wildcard_values = phraseInKnownCandidatePhrase(phrase, candidate_phrase)
         if matched_phrase:
             logging.debug("Matched '%s' and ('%s', '%s')" % (phrase, str(matched_phrase), str(wildcard_values)))
-            return (matched_phrase, wildcard_values)
-    return ([], None)
+            return (phrase, matched_phrase, wildcard_values)
+    return (phrase, [], None)
 
 
 def phraseInKnownCandidatePhrase(phrase_being_matched, candidate_phrase):
@@ -819,22 +827,6 @@ def phraseInKnownCandidatePhrase(phrase_being_matched, candidate_phrase):
         if can_match:
             return (candidate_phrase, wildcards)
     return ([], None)
-
-
-def getFarewell():
-    return randomPhraseFrom(FAREWELLS+timeFarewells(None))
-
-
-def getGreeting():
-    return randomPhraseFrom(GREETINGS+timeGreetings(None))
-
-
-def greeted(phrase):
-    return phraseMatch(phrase, GREETINGS+timeGreetings(None))
-
-
-def departed(phrase):
-    return phraseMatch(phrase, FAREWELLS+timeFarewells(None))
 
 
 def main(unused):
