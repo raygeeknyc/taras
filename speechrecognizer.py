@@ -52,7 +52,7 @@ class SpeechRecognizer(multiprocessing.Process):
                 chunked_tokens.append(chunk)
         return chunked_tokens
 
-    def __init__(self, transcript, log_queue, logging_level):
+    def __init__(self, injector, speech_transcript, log_queue, logging_level):
         multiprocessing.Process.__init__(self)
         self._log_queue = log_queue
         self._logging_level = logging_level
@@ -60,7 +60,8 @@ class SpeechRecognizer(multiprocessing.Process):
         self.is_ready.clear()
         self._exit = multiprocessing.Event()
         self._exit.clear()
-        self._transcript, _ = transcript
+        self._transcript = speech_transcript
+        self._injections = injector
         self._stop_capturing = False
         self._stop_recognizing = False
         self._audio_packet_queue = queue.Queue()
@@ -80,10 +81,12 @@ class SpeechRecognizer(multiprocessing.Process):
         import sounddevice as sd  # pyaudio has problems in multiprocesses, this works around that
         self.sd = sd
         logging.debug("recognizer process active")
-        self._capturer = threading.Thread(target=self.captureSound)
-        self._recognizer = threading.Thread(target=self.recognizeSpeech)
+        self._capturer = threading.Thread(target=self._captureSound)
+        self._recognizer = threading.Thread(target=self._recognizeSpeech)
+        self._accepter = threading.Thread(target=self._acceptSpeechInjection)
         self._recognizer.start()
         self._capturer.start()
+        self._accepter.start()
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         self.is_ready.set()
         logging.debug('speechrecognizer waiting for stop()')
@@ -91,9 +94,10 @@ class SpeechRecognizer(multiprocessing.Process):
         logging.debug('speechrecognizer saw stop()')
         self._stopCapturing()
         self._stopRecognizing()
+        self._transcript.close()
         self._capturer.join()
         self._recognizer.join()
-        self._transcript.close()
+        self._accepter.join()
         logging.debug("recognizer process terminating")
         sys.exit(0)
 
@@ -111,34 +115,44 @@ class SpeechRecognizer(multiprocessing.Process):
             logging.warning('capture: %s' % status)
         self._audio_packet_queue.put(bytes(indata))
 
-    def captureSound(self):
+    def _captureSound(self):
         logging.info("starting capture thread")
         with self.sd.RawInputStream(samplerate=SAMPLE_RATE, blocksize = 8000, device=None,
             dtype="int16", channels=1, callback=self._audioPacketCallback):
 
             while not self._stop_capturing:
                 pass
-        logging.info("stopped capturing")
+        logging.info("capture thread terminated")
 
-    def recognizeSpeech(self):
-        logging.info("starting recognizer thread")
-        phrase = 'What does John Doe do in the morning'
-        tagged_tokens = SpeechRecognizer.tag_speech(phrase)
+    def _interpretSpeech(self, speech:str):
+        tagged_tokens = SpeechRecognizer.tag_speech(speech)
+        tagged_chunks = SpeechRecognizer.chunk_names(tagged_tokens)
         tagged_chunks = SpeechRecognizer.chunk_names(tagged_tokens)
         logging.debug(tagged_chunks)
         self._transcript.send(tagged_chunks)
+
+    def _acceptSpeechInjection(self):
+        logging.info("starting injection thread")
+        while not self._stop_recognizing:
+            try:
+                injected = self._injections.recv()
+                logging.debug("Injected speech: '{}'".format(injected))
+                self._interpretSpeech(injected)
+            except Exception:
+                logging.exception('Exception accepting injected speech')
+        logging.info("injection thread terminated")
+
+    def _recognizeSpeech(self):
+        logging.info("starting recognizer thread")
         while not self._stop_recognizing:
             packet = self._audio_packet_queue.get()
             if self.model.AcceptWaveform(packet):
                 phrase = json.loads(self.model.Result())['text']
-                tagged_tokens = SpeechRecognizer.tag_speech(phrase)
-                tagged_chunks = SpeechRecognizer.chunk_names(tagged_tokens)
-                logging.debug(tagged_chunks)
-                self._transcript.send(tagged_chunks)
+                self._interpretSpeech(phrase)
             else:
                 snippet=json.loads(self.model.PartialResult())['partial']
                 logging.debug(str(snippet)+'...')
-        logging.info("stopped recognizing")
+        logging.info("recognizer thread terminated")
  
 
 def main(unused):
@@ -152,12 +166,10 @@ def main(unused):
     logging.getLogger('').addHandler(handler)
     logging.getLogger('').setLevel(_LOGGING_LEVEL)
 
-    transcript = multiprocessing.Pipe()
-    recognition_worker = SpeechRecognizer(transcript, log_queue, logging.getLogger('').getEffectiveLevel())
+    parsed_speech, injector = multiprocessing.Pipe()
+    recognition_worker = SpeechRecognizer(injector, parsed_speech, log_queue, logging.getLogger('').getEffectiveLevel())
     logging.debug("Starting speech recognition")
     recognition_worker.start()
-    unused, parsed_speech = transcript
-    unused.close()
     shutdown_requestor = recognition_worker.shutdown
     
     logging.debug("Waiting for speech recognizer to be ready")
@@ -165,6 +177,8 @@ def main(unused):
     signal.signal(signal.SIGINT, interrupt_handler)
     logging.debug("Waiting in main process")
     try:
+        _phrase = 'What does John Doe do in the morning'
+        injector.send(_phrase)
         while True:
             try:
                 speech = parsed_speech.recv()
@@ -174,6 +188,8 @@ def main(unused):
     except Exception as e:
         logging.exception("unexpected error running SpeechRecognizer")
     finally:
+        logging.info("client terminating")
+        injector.close()
         logging.info("joining SpeechRecognizer to wait for exit")
         recognition_worker.join()
 
