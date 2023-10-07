@@ -11,18 +11,12 @@ from datetime import datetime
 import multiprocessing
 from multiprocessingloghandler import ParentMultiProcessingLogHandler, ChildMultiProcessingLogHandler
 import os
+import queue
 import re
 from random import randint
 import signal
 from speechrecognizer import PERSON_LABEL, SpeechRecognizer 
 import sys
-
-
-def interrupt_handler(sig, frame):
-    global shutdown_requestor
-
-    print('You pressed Ctrl+C!')
-    shutdown_requestor()
 
 
 REBOOT_PROMPTS = (["og", "please", "reboot"], ["oh", "please", "reboot"], ["o", "please", "reboot"])
@@ -830,41 +824,38 @@ def phraseInKnownCandidatePhrase(phrase_being_matched, candidate_phrase):
 
 
 def main(unused):
-    global shutdown_requestor
-
     log_stream = sys.stderr
     log_queue = multiprocessing.Queue(100)
     handler = ParentMultiProcessingLogHandler(logging.StreamHandler(log_stream), log_queue)
     logging.getLogger('').addHandler(handler)
     logging.getLogger('').setLevel(_LOGGING_LEVEL)
 
-    transcript = multiprocessing.Pipe()
-    recognition_worker = SpeechRecognizer(transcript, log_queue, logging.getLogger('').getEffectiveLevel())
+    speech_injector = multiprocessing.Queue()
+    spoken_text_tokens = multiprocessing.Queue()
+    recognition_worker = SpeechRecognizer(speech_injector, spoken_text_tokens, log_queue, logging.getLogger('').getEffectiveLevel())
     logging.debug("Starting speech recognition")
     recognition_worker.start()
-    unused, spoken_text_tokens = transcript
-    unused.close()
-    shutdown_requestor = recognition_worker.shutdown
 
     logging.debug("Waiting for speech recognizer to be ready")
     recognition_worker.is_ready.wait()
-    signal.signal(signal.SIGINT, interrupt_handler)
     try:
         while True:
+            phrase = input("Enter a phrase to match: ")
+            if not phrase:
+                break
+            speech_injector.put(phrase)
             try:
-                speech = spoken_text_tokens.recv()
+                speech = spoken_text_tokens.get(block=True)
                 print("Heard: {}".format(speech))
                 persons = getPersonsNames(speech)
                 response = getResponse(speech, persons)
                 print("Response: {}".format(response))
-            except EOFError:
-                break
-    except Exception as e:
-        logging.exception("unexpected error running SpeechRecognizer")
-
+            except queue.Empty:
+                pass
     except Exception as e:
         logging.exception("unexpected error running PhraseResponder")
     finally:
+        recognition_worker.shutdown()
         logging.info("joining SpeechRecognizer to wait for exit")
         recognition_worker.join()
 

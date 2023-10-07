@@ -25,10 +25,13 @@ PERSON_LABEL = 'PERSON'
 SAMPLE_RATE = 44100
 
 
+shutdown = False
 def interrupt_handler(sig, frame):
     global shutdown_requestor
+    global shutdown
 
     print('You pressed Ctrl+C!')
+    shutdown = True
     shutdown_requestor()
 
 class SpeechRecognizer(multiprocessing.Process):
@@ -108,6 +111,7 @@ class SpeechRecognizer(multiprocessing.Process):
     def _stopRecognizing(self):
         logging.debug("setting stop_recognizing")
         self._stop_recognizing = True
+        self._injections.close()
     
     def _audioPacketCallback(self, indata, frames, time, status):
         """This is called (from a separate thread) for each audio block."""
@@ -129,15 +133,17 @@ class SpeechRecognizer(multiprocessing.Process):
         tagged_chunks = SpeechRecognizer.chunk_names(tagged_tokens)
         tagged_chunks = SpeechRecognizer.chunk_names(tagged_tokens)
         logging.debug(tagged_chunks)
-        self._transcript.send(tagged_chunks)
+        self._transcript.put(tagged_chunks)
 
     def _acceptSpeechInjection(self):
         logging.info("starting injection thread")
         while not self._stop_recognizing:
             try:
-                injected = self._injections.recv()
+                injected = self._injections.get(block=False)
                 logging.debug("Injected speech: '{}'".format(injected))
                 self._interpretSpeech(injected)
+            except queue.Empty:
+                pass
             except Exception:
                 logging.exception('Exception accepting injected speech')
         logging.info("injection thread terminated")
@@ -157,6 +163,7 @@ class SpeechRecognizer(multiprocessing.Process):
 
 def main(unused):
     global shutdown_requestor
+    global shutdown
 
     shutdown_requestor = None
 
@@ -166,7 +173,8 @@ def main(unused):
     logging.getLogger('').addHandler(handler)
     logging.getLogger('').setLevel(_LOGGING_LEVEL)
 
-    parsed_speech, injector = multiprocessing.Pipe()
+    parsed_speech = multiprocessing.Queue()
+    injector = multiprocessing.Queue()
     recognition_worker = SpeechRecognizer(injector, parsed_speech, log_queue, logging.getLogger('').getEffectiveLevel())
     logging.debug("Starting speech recognition")
     recognition_worker.start()
@@ -178,18 +186,17 @@ def main(unused):
     logging.debug("Waiting in main process")
     try:
         _phrase = 'What does John Doe do in the morning'
-        injector.send(_phrase)
-        while True:
+        injector.put(_phrase)
+        while not shutdown:
             try:
-                speech = parsed_speech.recv()
+                speech = parsed_speech.get(block=False)
                 print("heard: {}".format(speech))
-            except EOFError:
-                break
+            except queue.Empty:
+                pass
     except Exception as e:
         logging.exception("unexpected error running SpeechRecognizer")
     finally:
         logging.info("client terminating")
-        injector.close()
         logging.info("joining SpeechRecognizer to wait for exit")
         recognition_worker.join()
 
