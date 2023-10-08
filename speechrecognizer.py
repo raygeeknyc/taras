@@ -2,6 +2,7 @@
 
 import logging
 _LOGGING_LEVEL = logging.DEBUG
+_LOGGING_LEVEL = logging.INFO
 POLLING_DELAY_SECS = 0.1
 
 import array
@@ -20,7 +21,7 @@ import time
 import threading
 from vosk import Model, KaldiRecognizer
 
-PERSON_LABEL = 'PERSON'
+ENTITY_LABELS = ['PERSON']
 
 SAMPLE_RATE = 44100
 
@@ -111,7 +112,6 @@ class SpeechRecognizer(multiprocessing.Process):
     def _stopRecognizing(self):
         logging.debug("setting stop_recognizing")
         self._stop_recognizing = True
-        self._injections.close()
     
     def _audioPacketCallback(self, indata, frames, time, status):
         """This is called (from a separate thread) for each audio block."""
@@ -184,6 +184,7 @@ def main(unused):
     recognition_worker.is_ready.wait()
     signal.signal(signal.SIGINT, interrupt_handler)
     logging.debug("Waiting in main process")
+    print("Listening, CTRL-C to exit")
     try:
         _phrase = 'What does John Doe do in the morning'
         injector.put(_phrase)
