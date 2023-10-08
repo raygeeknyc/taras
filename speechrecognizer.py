@@ -98,7 +98,6 @@ class SpeechRecognizer(multiprocessing.Process):
         logging.debug('speechrecognizer saw stop()')
         self._stopCapturing()
         self._stopRecognizing()
-        self._transcript.close()
         self._capturer.join()
         self._recognizer.join()
         self._accepter.join()
@@ -141,7 +140,8 @@ class SpeechRecognizer(multiprocessing.Process):
             try:
                 injected = self._injections.get(block=False)
                 logging.debug("Injected speech: '{}'".format(injected))
-                self._interpretSpeech(injected)
+                if injected:
+                    self._interpretSpeech(injected)
             except queue.Empty:
                 pass
             except Exception:

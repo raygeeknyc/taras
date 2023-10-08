@@ -804,7 +804,7 @@ def substituteWildcards(chosenResponse, wildcards):
     for token in chosenResponse:
         if re.match('\?.*\?',token):
             try:
-                logging.info("token: '%s', wildcards: '%s'", token, " ".join(wildcards))
+                logging.debug("token: '%s', wildcards: '%s'", token, " ".join(wildcards))
                 substituted_wildcard = wildcards[token]
                 for substitute_token in substituted_wildcard:
                     finalResponse.append(substitute_token)
@@ -873,9 +873,10 @@ def main(unused):
     try:
         while True:
             phrase = input("Enter a phrase to match: ")
-            if not phrase:
+            if phrase == "quitnow":
                 break
-            speech_injector.put(phrase)
+            if phrase:
+                speech_injector.put(phrase)
             try:
                 speech = spoken_text_tokens.get(block=True)
                 print("Heard: {}".format(speech))
