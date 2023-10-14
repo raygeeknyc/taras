@@ -11,17 +11,16 @@ import io
 import json
 import multiprocessing
 from multiprocessingloghandler import ParentMultiProcessingLogHandler, ChildMultiProcessingLogHandler
-from nltk import ne_chunk, pos_tag, word_tokenize
-from nltk.tree import Tree
 import os
 import queue
 import signal
+import spacy
 import sys
 import time
 import threading
 from vosk import Model, KaldiRecognizer
 
-ENTITY_LABELS = ['PERSON']
+ENTITY_LABELS = ['PROPN']
 
 SAMPLE_RATE = 44100
 
@@ -36,24 +35,30 @@ def interrupt_handler(sig, frame):
     shutdown_requestor()
 
 class SpeechRecognizer(multiprocessing.Process):
+    nlp = spacy.load("en_core_web_sm")
 
     def tag_speech(phrase:str) -> list:
-        tagged_tokens = pos_tag(word_tokenize(phrase.strip()))
+        full_tokens = SpeechRecognizer.nlp(phrase.strip().lower())
+        tagged_tokens = [(token.text, token.pos_) for token in full_tokens]
         return tagged_tokens
 
     def chunk_names(tokens:list) -> list:
         chunked_tokens = []
-        chunks = ne_chunk(tokens)
-        for chunk in chunks:
-            logging.debug('chunk: {}: {}'.format(type(chunk),str(chunk)))
-            if type(chunk) == Tree:
-                name = ''
-                for chunk_leaf in chunk.leaves():
-                    name += chunk_leaf[0] + ' ' 
-                name = name.strip()
-                chunked_tokens.append((name,chunk.label()))
+        entity_pos = None
+        name = []
+        for token in tokens:
+            if token[1] in ENTITY_LABELS:
+                if not entity_pos:
+                    entity_pos = token[1]
+                name.append(token[0])
             else:
-                chunked_tokens.append(chunk)
+                if name:
+                    chunked_tokens.append((' '.join(name), entity_pos))
+                    name = []
+                chunked_tokens.append((token[0], token[1]))
+                entity_pos = None
+        if name:
+            chunked_tokens.append((' '.join(name), entity_pos))
         return chunked_tokens
 
     def __init__(self, injector, speech_transcript, log_queue, logging_level):
@@ -129,7 +134,6 @@ class SpeechRecognizer(multiprocessing.Process):
 
     def _interpretSpeech(self, speech:str):
         tagged_tokens = SpeechRecognizer.tag_speech(speech)
-        tagged_chunks = SpeechRecognizer.chunk_names(tagged_tokens)
         tagged_chunks = SpeechRecognizer.chunk_names(tagged_tokens)
         logging.debug(tagged_chunks)
         self._transcript.put(tagged_chunks)
