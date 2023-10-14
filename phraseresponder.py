@@ -872,7 +872,7 @@ def main(unused):
     recognition_worker.is_ready.wait()
     try:
         while True:
-            phrase = input("Enter a phrase to match: ")
+            phrase = input("Enter a phrase to match ('quitnow' to stop): ")
             if phrase == "quitnow":
                 break
             if phrase:
