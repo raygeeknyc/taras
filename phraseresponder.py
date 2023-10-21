@@ -426,207 +426,207 @@ def genericQuestionPrompts(phrase):
     return phrase, GENERIC_QUESTION_PROMPTS
 
 
-def greetingResponses(_):
+def greetingResponses():
     return GREETINGS+_timeGreetings(None)
 
 
-def farewellResponses(_):
+def farewellResponses():
     return FAREWELLS+_timeFarewells(None)
 
 
-def welcomeResponses(_):
+def welcomeResponses():
     return WELCOMES
 
 
-def hateResponses(_):
+def hateResponses():
     return SADNESSES
 
 
-def rebootResponses(_):
+def rebootResponses():
     return REBOOT_RESPONSES
 
 
-def eliza1Responses(_):
+def eliza1Responses():
     return ELIZA_1_RESPONSES
 
 
-def eliza2Responses(_):
+def eliza2Responses():
     return ELIZA_2_RESPONSES
 
 
-def eliza3Responses(_):
+def eliza3Responses():
     return ELIZA_3_RESPONSES
 
 
-def eliza4Responses(_):
+def eliza4Responses():
     return ELIZA_4_RESPONSES
 
 
-def eliza5Responses(_):
+def eliza5Responses():
     return ELIZA_5_RESPONSES
 
 
-def eliza6Responses(_):
+def eliza6Responses():
     return ELIZA_6_RESPONSES
 
 
-def eliza7Responses(_):
+def eliza7Responses():
     return ELIZA_7_RESPONSES
 
 
-def eliza8Responses(_):
+def eliza8Responses():
     return ELIZA_8_RESPONSES
 
 
-def eliza9Responses(_):
+def eliza9Responses():
     return ELIZA_9_RESPONSES
 
 
-def eliza10Responses(_):
+def eliza10Responses():
     return ELIZA_10_RESPONSES
 
 
-def eliza11Responses(_):
+def eliza11Responses():
     return ELIZA_11_RESPONSES
 
 
-def eliza12Responses(_):
+def eliza12Responses():
     return ELIZA_12_RESPONSES
 
 
-def eliza13Responses(_):
+def eliza13Responses():
     return ELIZA_13_RESPONSES
 
 
-def eliza14Responses(_):
+def eliza14Responses():
     return ELIZA_14_RESPONSES
 
 
-def eliza15Responses(_):
+def eliza15Responses():
     return ELIZA_15_RESPONSES
 
 
-def eliza16Responses(_):
+def eliza16Responses():
     return ELIZA_16_RESPONSES
 
 
-def eliza17Responses(_):
+def eliza17Responses():
     return ELIZA_17_RESPONSES
 
 
-def eliza18Responses(_):
+def eliza18Responses():
     return ELIZA_18_RESPONSES
 
 
-def eliza19Responses(_):
+def eliza19Responses():
     return ELIZA_19_RESPONSES
 
 
-def eliza20Responses(_):
+def eliza20Responses():
     return ELIZA_20_RESPONSES
 
 
-def eliza21Responses(_):
+def eliza21Responses():
     return ELIZA_21_RESPONSES
 
 
-def eliza22Responses(_):
+def eliza22Responses():
     return ELIZA_22_RESPONSES
 
 
-def pop1Responses(_):
+def pop1Responses():
     return POP_1_RESPONSES
 
 
-def pop2Responses(_):
+def pop2Responses():
     return POP_2_RESPONSES
 
 
-def pop3Responses(_):
+def pop3Responses():
     return POP_3_RESPONSES
 
 
-def pop4Responses(_):
+def pop4Responses():
     return POP_4_RESPONSES
 
 
-def news1Responses(_):
+def news1Responses():
     return NEWS_1_RESPONSES
 
 
-def foodResponses(_):
+def foodResponses():
     return FOOD_RESPONSES
 
 
-def greatStuffResponses(_):
+def greatStuffResponses():
     return GREAT_STUFF_RESPONSES
 
 
-def girlsCountResponses(_):
+def girlsCountResponses():
     return GIRLS_COUNT_RESPONSES
 
 
-def friends1Responses(_):
+def friends1Responses():
     return FRIENDS_1_RESPONSES
 
 
-def friends2Responses(_):
+def friends2Responses():
     return FRIENDS_2_RESPONSES
 
 
-def friends3Responses(_):
+def friends3Responses():
     return FRIENDS_3_RESPONSES
 
 
-def friends4Responses(_):
+def friends4Responses():
     return FRIENDS_4_RESPONSES
 
 
-def canineResponses(_):
+def canineResponses():
     return CANINE_RESPONSES
 
 
-def felineResponses(_):
+def felineResponses():
     return FELINE_RESPONSES
 
 
-def smugResponses(_):
+def smugResponses():
     return SMUG_RESPONSES
 
 
-def banal1Responses(_):
+def banal1Responses():
     return BANAL_1_RESPONSES
 
 
-def banal2Responses(_):
+def banal2Responses():
     return BANAL_2_RESPONSES
 
 
-def genericQuestionResponses(_):
+def genericQuestionResponses():
     return GENERIC_QUESTION_RESPONSES
 
 
-def humorResponses(_):
+def humorResponses():
     return HUMOR_RESPONSES
 
 
-def aiResponses(_):
+def aiResponses():
     return AI_RESPONSES
 
 
-def jokeResponses(_):
+def jokeResponses():
     return JOKE_RESPONSES
 
 
-def joke2Responses(_):
+def joke2Responses():
     return JOKE_2_RESPONSES
 
 
-def pingResponses(_):
+def pingResponses():
     return ACKS
 
 
-def productResponses(_):
+def productResponses():
     return PRODUCT_RECS
 
 
@@ -634,25 +634,25 @@ def inKindSuffixes(_):
     return IN_KIND_SUFFIXES
 
 
-def affectionResponses(_):
+def affectionResponses():
     return AFFECTIONS + ME_TOOS
 
 
-def idResponses(_):
+def idResponses():
     return ID_RESPONSES
 
 
-def introResponses(_):
+def introResponses():
     return INTRO_RESPONSES
 
 
-def timeResponses(_):
+def timeResponses():
     hour = datetime.now().hour
     minute = datetime.now().minute
     return (["its", "now", str(hour), str(minute)],)
     
 
-def dateResponses(_):
+def dateResponses():
     month = MONTH[datetime.now().month-1]
     day = datetime.now().day
     dow = DOW[datetime.weekday(datetime.now())]
@@ -680,7 +680,7 @@ def getResponse(tagged_phrase_tokens:list, persons:list):
         generated_phrase, matchedPhrase, wildcards = phraseMatch(tagged_phrase_tokens, persons, prompt_matcher)
         logging.debug("'%s', '%s', '%s'" % (generated_phrase, matchedPhrase, wildcards))
         if matchedPhrase:
-            responses = eval('response_selector(persons)')
+            responses = eval('response_selector()')
             if suffix_generator:
                 suffixes = eval('suffix_generator(persons)')
             else:
