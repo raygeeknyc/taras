@@ -49,8 +49,8 @@ ELIZA_8_RESPONSES = (["How", "have", "I", "helped", "you", "to", "be", "glad"], 
 ELIZA_9_PROMPTS = (["?first?", "is", "like", "?second?"], ["?first?", "reminds", "me", "of", "?second?"], ["?first?", "are", "like", "?second?"])
 ELIZA_9_RESPONSES = (["In", "what", "way", "is", "?first?", "like", "?second?"], ["What", "resemblence", "do", "you", "see", "between", "?second?", "and", "?first?"], ["Could", "there", "really", "be", "some", "connection", "between", "them"])
 
-ELIZA_10_PROMPTS = (["?they?", "are", "?what?"], ["?they?", "is", "?what?"])
-ELIZA_10_RESPONSES = (["Do", "you", "think", "that", "about", "?they?"], ["Possibly", "?they?", "are", "?what?"], ["Did", "you", "think", "that", "?they?", "might", "not", "be", "?what?"])
+ELIZA_10_PROMPTS = (["?they?", "are", "?*what*?"], ["?they?", "is", "?*what*?"])
+ELIZA_10_RESPONSES = (["Do", "you", "think", "that", "about", "?they?"], ["Possibly", "?they?", "are", "more", "than", "?*what*?"], ["Did", "you", "think", "that", "?they?", "might", "not", "be", "?*what*?"])
 
 ELIZA_11_PROMPTS = (["I", "love", "to", "?act?", "with", "?object?"], ["I", "love", "to", "?act?", "to", "?object?"], ["I", "love", "to", "?act?", "?object?"])
 ELIZA_11_RESPONSES = (["Do", "you", "think", "?object?", "also", "likes", "to", "?act?"], ["I'm", "glad", "that", "you", "enjoy", "?object?", "so", "much"], ["Is", "it", "always", "important", "to", "?act?", "or", "only", "with", "?object?"])
@@ -125,7 +125,7 @@ FRIENDS_4_RESPONSES = (["You", "are", "an", "amazing", "artist", "aiden"], ["You
 ID_PROMPTS = (["who", "are", "you"], ["what", "is", "your", "name"], ["what", "are", "you"])
 ID_RESPONSES = (["I", "am", "oh", "jee", ",", "a", "desktop", "robot", "friend"], ["my", "name", "is", "oh", "jee"], ["I", "am", "oh", "jee"], ["hello", "I'm", "oh", "jee"], ["I'm", "just", "the", "cutest", "robot", "you,'ll", "ever", "see"])
 
-INTRO_PROMPTS = (["I", "am", "?name?"], ["my", "name", "is", "?name?"], ["hello", "i'm", "?name?"])
+INTRO_PROMPTS = (["I", "am", "?name?"], ["my", "name", "is", "?name?"], ["hello", "i'm", "?name?"], ["this", "is", "?name?"])
 INTRO_RESPONSES = (["hi", "?name?"], ["hello", "?name?"], ["Hi", "?name?", "it's", "good", "to", "see", "you"], ["i'm", "glad", "to", "know", "you", "?name?"], ["hey", "there", "?name?"])
 
 CANINE_PROMPTS = (["good", "puppy"], ["nice", "puppy"], ["good", "dog"], ["nice", "doggy"], ["nice", "doggie"], ["Who's", "a", "good", "doggy"], ["Who's", "a", "good", "dog"], ["Who's", "a", "good", "girl"], ["Who's", "a", "good", "boy"])
@@ -630,7 +630,7 @@ def productResponses():
     return PRODUCT_RECS
 
 
-def inKindSuffixes(_):
+def inKindSuffixes():
     return IN_KIND_SUFFIXES
 
 
@@ -682,7 +682,7 @@ def getResponse(tagged_phrase_tokens:list, persons:list):
         if matchedPhrase:
             responses = eval('response_selector()')
             if suffix_generator:
-                suffixes = eval('suffix_generator(persons)')
+                suffixes = eval('suffix_generator()')
             else:
                 suffixes = None
             logging.debug("responses '%s', '%s'" % (responses, suffixes))
@@ -721,6 +721,9 @@ PROMPTS_RESPONSES = [
   (foodPrompts, foodResponses, None, False),
   (greatStuffPrompts, greatStuffResponses, None, False),
   (girlsCountPrompts, girlsCountResponses, None, False),
+  (idPrompts, idResponses, None, False),
+  (introPrompts, introResponses, None, False), # This should follow specific intros
+  (greetingPrompts, greetingResponses, inKindSuffixes, True), 
   (eliza1Prompts, eliza1Responses, None, False),
   (eliza2Prompts, eliza2Responses, None, False),
   (eliza3Prompts, eliza3Responses, None, False),
@@ -743,9 +746,6 @@ PROMPTS_RESPONSES = [
   (eliza20Prompts, eliza20Responses, None, False),
   (eliza21Prompts, eliza21Responses, None, False),
   (eliza22Prompts, eliza22Responses, None, False),
-  (idPrompts, idResponses, None, False),
-  (introPrompts, introResponses, None, False), # This should follow specific intros
-  (greetingPrompts, greetingResponses, inKindSuffixes, True), 
   (banal1Prompts, banal1Responses, None, False),
   (banal2Prompts, banal2Responses, None, False),
   (genericQuestionPrompts, genericQuestionResponses, None, False),
