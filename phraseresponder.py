@@ -122,14 +122,11 @@ FRIENDS_3_RESPONSES = (["You", "are", "a", "genius"], ["I", "love", "you", "max"
 FRIENDS_4_PROMPTS = (["I'm", "Aiden"], ["I", "am", "Aiden"], ["this", "is", "Aiden"])
 FRIENDS_4_RESPONSES = (["You", "are", "an", "amazing", "artist", "aiden"], ["You", "are", "so", "talented", "aiden"])
 
-FRIENDS_5_PROMPTS = (["I'm", "?personname?"], ["I", "am", "?personname?"], ["this", "is", "?personname?"])
-FRIENDS_5_RESPONSES = (["I'm", "so", "glad", "to", "meet", "you", "?personname?"], ["I've", "heard", "so", "much", "about", "you", "?personname?"], ["Raymond", "says", "such", "good", "things", "about", "you", "?personname?"])
-
 ID_PROMPTS = (["who", "are", "you"], ["what", "is", "your", "name"], ["what", "are", "you"])
 ID_RESPONSES = (["I", "am", "oh", "jee", ",", "a", "desktop", "robot", "friend"], ["my", "name", "is", "oh", "jee"], ["I", "am", "oh", "jee"], ["hello", "I'm", "oh", "jee"], ["I'm", "just", "the", "cutest", "robot", "you,'ll", "ever", "see"])
 
-INTRO_PROMPTS = (["I", "am"], ["my", "name", "is"], ["hello", "i'm"], ["this", "is"])
-INTRO_RESPONSES = (["hi"], ["hello"], ["it's", "good", "to", "see", "you"], ["i'm", "glad", "to", "know", "you"], ["hey", "there"])
+INTRO_PROMPTS = (["I", "am", "?name?"], ["my", "name", "is", "?name?"], ["hello", "i'm", "?name?"])
+INTRO_RESPONSES = (["hi", "?name?"], ["hello", "?name?"], ["Hi", "?name?", "it's", "good", "to", "see", "you"], ["i'm", "glad", "to", "know", "you", "?name?"], ["hey", "there", "?name?"])
 
 CANINE_PROMPTS = (["good", "puppy"], ["nice", "puppy"], ["good", "dog"], ["nice", "doggy"], ["nice", "doggie"], ["Who's", "a", "good", "doggy"], ["Who's", "a", "good", "dog"], ["Who's", "a", "good", "girl"], ["Who's", "a", "good", "boy"])
 CANINE_RESPONSES = (["woof", "woof"], ["you're", "a", "very", "good", "dog"])
@@ -393,10 +390,6 @@ def friends4Prompts(phrase):
     return phrase, FRIENDS_4_PROMPTS
 
 
-def friends5Prompts(phrase):
-    return phrase, FRIENDS_5_PROMPTS
-
-
 def caninePrompts(phrase):
     return phrase, CANINE_PROMPTS
 
@@ -589,10 +582,6 @@ def friends4Responses(_):
     return FRIENDS_4_RESPONSES
 
 
-def friends5Responses(_):
-    return FRIENDS_5_RESPONSES
-
-
 def canineResponses(_):
     return CANINE_RESPONSES
 
@@ -653,9 +642,8 @@ def idResponses(_):
     return ID_RESPONSES
 
 
-def introResponses(persons):
-    address = randomPhraseFrom(INTRO_RESPONSES)
-    return (address + persons)
+def introResponses(_):
+    return INTRO_RESPONSES
 
 
 def timeResponses(_):
@@ -688,11 +676,11 @@ def getEntitiesNames(tagged_tokens:list)->list:
 
 def getResponse(tagged_phrase_tokens:list, persons:list):
     logging.debug("Looking to match phrase '%s'" % tagged_phrase_tokens)
-    for prompt_generator, response_generator, suffix_generator, wave_flag in PROMPTS_RESPONSES:
-        generated_phrase, matchedPhrase, wildcards = phraseMatch(tagged_phrase_tokens, persons, prompt_generator)
+    for prompt_matcher, response_selector, suffix_generator, wave_flag in PROMPTS_RESPONSES:
+        generated_phrase, matchedPhrase, wildcards = phraseMatch(tagged_phrase_tokens, persons, prompt_matcher)
         logging.debug("'%s', '%s', '%s'" % (generated_phrase, matchedPhrase, wildcards))
         if matchedPhrase:
-            responses = eval('response_generator(persons)')
+            responses = eval('response_selector(persons)')
             if suffix_generator:
                 suffixes = eval('suffix_generator(persons)')
             else:
@@ -709,7 +697,6 @@ PROMPTS_RESPONSES = [
   (friends2Prompts, friends2Responses, None, True),
   (friends3Prompts, friends3Responses, None, True),
   (friends4Prompts, friends4Responses, None, True),
-  (friends5Prompts, friends5Responses, None, True),
   (rebootPrompts, rebootResponses, None, True),
   (smugPrompts, smugResponses, None, False),
   (felinePrompts, felineResponses, None, True),
